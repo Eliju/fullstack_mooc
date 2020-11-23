@@ -1,0 +1,45 @@
+note over käyttäjä:
+käyttäjä syöttää uuden muistiinpanon näytölle 
+ja painaa Save-painiketta
+end note
+käyttäjä->selain: kirjoita uusi muistiinpano
+käyttäjä->selain: paina Save-painiketta
+
+selain->palvelin: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note
+note over palvelin:
+palvelin suorittaa POST-pyyntönä tulleen new_note toiminnon.
+- POST-pyynnön mukana tuleva data on pyynnön body-osassa (req.body)
+- palvelin lukee data (req.body.note)
+- pyynnön mukana tulleesta datasta ja ajohetken aikaleimasta
+  palvelin luo muistiinpanoa vastaavan olion
+- palvelin tallentaa uuden olion kaikki muistiinpanot sisältävään taulukkoon
+  (notes)
+- palvelin luo redirect-vastaussanoman, jossa on uusi osoite
+end note
+
+palvelin->selain: HTTP Response 302 (Redirect), location: /exampleapp/notes
+
+note over selain:
+selain saa redirect-vastauksen (status 302) ja uuden osoitteen,
+johon se tekee HTTP GET pyynnön
+end note
+
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+palvelin-->selain: HTML-koodi
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+palvelin-->selain: main.css
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+palvelin-->selain: main.js
+
+note over selain:
+- selain alkaa suorittaa js-koodia
+- koodi pyytää JSON-datan palvelimelta
+end note
+
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+palvelin-->selain: [{"content":"yes","date":"2020-11-22T20:37:33.784Z"}, ...]
+
+note over selain:
+- selain suorittaa tapahtumankäsittelijän
+- tapahtumankäsittelijä renderöi muistiinpanot näytölle
+end note

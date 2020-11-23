@@ -1,0 +1,21 @@
+title SPA
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa
+palvelin->selain: HTML code
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+palvelin->selain: main.css
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+palvelin->selain: spa.js
+
+note over selain:
+Selain alkaa suorittaa spa.js koodia,
+joka mm. tekee HTTP GET -pyynnön ja hakee data.json tiedoston. 
+end note
+
+selain->palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+palvelin->selain: data.json
+
+note over selain:
+Selain suorittaa loppuun spa.js javascript koodin, joka
+lukee palvelimelta saadun data.json tiedoston ja renderöi
+näytölle tiedoston sisältämät muistiinpanot.
+end note

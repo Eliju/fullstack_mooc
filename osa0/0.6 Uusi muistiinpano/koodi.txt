@@ -1,0 +1,31 @@
+title Uusi muistiinpano / SPA
+
+käyttäjä->selain: kirjoita uusi muistiinpano syöttökenttään
+käyttäjä->selain: paina Save-painiketta
+
+note over selain:
+Selain on saanut kaiken tarvittavan javascript-koodin jo sivun
+ensimmäisen latauksen yhteydessä. Save-painikkeen painallus aktivoi
+painikkeen tapahtumankäsittelijän, joka 
+- muokkaa sivulle syötetystä muistiinpanosta json-muotoisen sanoman
+  (sisältää sekä muistiinpanon että aikaleiman)
+- uudelleenrenderöi sivun muistiinpanolistan siten, että myös
+  uusi muistiinpano on mukana ja
+. lähettää palvelimelle POST-pyynnön mukana uuden muistiinpano-olion
+  (POST-pyynnön Request Payload) pitkäaikaistallennusta varten 
+end note
+selain->palvelin: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over palvelin:
+POST-pyynnön mukana tulee palvelimelle uusi muistiinpano (Request Payload)
+json-muodossa. Pyynnön content-type on application/json, josta 
+palvelin tunnistaa pyynnön tutkia mukana tuleva data, käsitellä se
+ja tallentaa tieto tietorakenteeseen.
+end note
+
+note over palvelin:
+Palvelin käsittelee saamansa muistiinpano-olion ja tallentaa sen
+tietorakenteeseen.
+Palvelin lähettää vastaussanomana status-arvon 201 (Created).
+end note
+palvelin->selain: HTTP status code 201 (Created)
