@@ -18,16 +18,16 @@ const Part = (props) => {
 const Content = (props) => {
   return (
     <>
-      <Part p={props.p1} />
-      <Part p={props.p2} />
-      <Part p={props.p3} />
+      <Part p={props.p[0]} />
+      <Part p={props.p[1]} />
+      <Part p={props.p[2]} />
     </>
   )
 }
 
 const Total = (props) => {
   return (
-    <p>Number of exercises {props.e1 + props.e2 + props.e3}</p>
+    <p>Number of exercises {props.p[0].exercises + props.p[1].exercises + props.p[2].exercises}</p>
   )
 }
 
@@ -51,8 +51,8 @@ const App = () => {
   return (
     <div>
       <Header course={course} />
-      <Content p1={parts[0]} p2={parts[1]} p3={parts[2]} />
-      <Total e1={parts[0].exercises} e2={parts[1].exercises} e3={parts[2].exercises} />
+      <Content p={parts} />
+      <Total p={parts} />
     </div>
   )
 }
