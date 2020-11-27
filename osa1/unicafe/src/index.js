@@ -11,7 +11,7 @@ const Button = ({handleClick, text}) => <button onClick={handleClick} > {text} <
 
 const StatisticsHeader = () => (<h2>statistics</h2>)
 
-const StatisticsLine = ({text}) => (<div>{text}</div>)
+const StatisticsLine = ({text, value, end}) => (<tr><td>{text}</td><td>{value}</td><td>{end}</td></tr>)
 
 const Statistics = ({good, neutral, bad}) => {
     if ((good===0) &&(neutral === 0) && (bad === 0)) {
@@ -26,12 +26,16 @@ const Statistics = ({good, neutral, bad}) => {
     return (
       <>
         <StatisticsHeader />
-        <StatisticsLine text={`good ${good}`} />
-        <StatisticsLine text={`neutral ${neutral}`} />
-        <StatisticsLine text={`bad ${bad}`} />
-        <StatisticsLine text={`all ${good + neutral + bad}`} />
-        <StatisticsLine text={`average ${(good*1 + neutral*0 + bad*-1) / (good + neutral + bad)}`} />
-        <StatisticsLine text={`positive ${100 * good / (good + neutral + bad)} %`} />
+        <table>
+        <tbody>
+        <StatisticsLine text='good' value={good} end='' />
+        <StatisticsLine text='neutral' value={neutral} end='' />
+        <StatisticsLine text='bad' value={bad} end='' />
+        <StatisticsLine text='all' value={good + neutral + bad} end='' />
+        <StatisticsLine text='average' value={(good*1 + neutral*0 + bad*-1) / (good + neutral + bad)} end='' />
+        <StatisticsLine text='positive' value={100 * good / (good + neutral + bad)} end='%' />
+        </tbody>
+        </table>
       </>
       )    
 }
