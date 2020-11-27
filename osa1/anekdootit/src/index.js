@@ -8,18 +8,20 @@ function getRdmIndex(min, max) {
 const Button = ({handleClick, text}) => (<button onClick={handleClick}>{text}</button>)
 
 const MostPopular = ({anecdotes, votes}) => {
-  let mostVotes = 0
-  let amountOfVotes = votes[0]
+    if (anecdotes.length > 0){
+    let mostVotes = 0
+    let amountOfVotes = votes[0]
 
-  for (let i = 1; i < votes.length; i++){
-    if (votes[i] > amountOfVotes){
-      mostVotes = i
-      amountOfVotes = votes[i]
+    for (let i = 1; i < votes.length; i++){
+      if (votes[i] > amountOfVotes){
+        mostVotes = i
+        amountOfVotes = votes[i]
+      }
     }
+    return(
+      <p>{anecdotes[mostVotes]}</p>
+    )
   }
-  return(
-    <p>{anecdotes[mostVotes]}</p>
-  )
 }
 
 const App = (props) => {
