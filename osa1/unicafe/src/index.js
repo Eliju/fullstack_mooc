@@ -14,7 +14,17 @@ const Statistics = ({good, neutral, bad}) => {
       <h2>statistics</h2>
       good {good}<br/>
       neutral {neutral}<br/>
-      bad {bad}
+      bad {bad}<br/>
+    </>
+  )
+}
+
+const Total = ({good, neutral, bad}) => {
+  return (
+    <>
+      all {good + neutral + bad}<br/>
+      average {(good*1 + neutral*0 + bad*-1) / (good + neutral + bad)}<br/>
+      positive {good / (good + neutral + bad)} %
     </>
   )
 }
@@ -35,6 +45,7 @@ const App = () => {
       <Button handleClick={increaseNeutral} text='neutral' />
       <Button handleClick={increaseBad} text='bad' />
       <Statistics good={good} neutral={neutral} bad={bad} />
+      <Total good={good} neutral={neutral} bad={bad} />
     </div>
   )
 }
