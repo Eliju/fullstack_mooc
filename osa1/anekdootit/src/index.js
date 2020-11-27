@@ -9,13 +9,21 @@ const Button = ({handleClick, text}) => (<button onClick={handleClick}>{text}</b
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
+  const [votes, setVotes] = useState(Array(props.anecdotes.length).fill(0))
  
   const getNew = () => setSelected(getRdmIndex(0, props.anecdotes.length))
+  const voteCurrent = () => {
+    const copy = [...votes]
+    copy[selected] +=1
+    setVotes(copy)
+  }
 
   return (
     <div>
       <p>{props.anecdotes[selected]}</p>
-      <p><Button handleClick={getNew} text='new anecdote' /></p>
+      <p>has {votes[selected]} votes</p>
+      <Button handleClick={voteCurrent} text='vote'/>
+      <Button handleClick={getNew} text='new anecdote' />
     </div>
   )
 }
