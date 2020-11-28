@@ -3,12 +3,15 @@ import PersonList from './components/Persons'
 
 const App = () => {
     const [persons, setPersons] = useState([
-        {name: 'Arto Hellas',
-         number: '040-1231244'}
-    ])
+        { name: 'Arto Hellas', number: '040-123456' },
+        { name: 'Ada Lovelace', number: '39-44-5323523' },
+        { name: 'Dan Abramov', number: '12-43-234345' },
+        { name: 'Mary Poppendieck', number: '39-23-6423122' }
+        ])
 
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
+    const [newFilter, setFilter] = useState(' ')
 
     const handleFormSubmit = (event) => {
         event.preventDefault()
@@ -23,6 +26,7 @@ const App = () => {
         setPersons(persons.concat(phoneBookObject))
         setNewName('')
         setNewNumber('')
+        setFilter('')
 } 
 
     const handleNameInput = (event) => {
@@ -33,9 +37,15 @@ const App = () => {
         setNewNumber(event.target.value)
     }
 
+    const filterList = (event) => {
+        setFilter(event.target.value)
+    } 
+
     return (
         <div>
             <h2>Phonebook</h2>
+            filter shown with <input value={newFilter} onChange={filterList}/>
+            <h2>add a new</h2>
             <form onSubmit={handleFormSubmit}>
                 <div>
                     name: <input value={newName} onChange={handleNameInput}/>
@@ -46,9 +56,9 @@ const App = () => {
                 <div>
                     <button type='submit'>add</button>
                 </div>
-                <h2>Numbers</h2>
-                <PersonList persons={persons} />
             </form>
+            <h2>Numbers</h2>
+            <PersonList persons={persons} filter={newFilter} />
         </div>
     )
 }
