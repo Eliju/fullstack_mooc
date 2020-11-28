@@ -22,7 +22,8 @@ const Content = ({course}) => {
     </div>
   )
  }
- 
+
+// reduce-function is already in use
 const Total = ({course}) => {
   return (
     <b>total of {course.parts.reduce((sum, item) => sum += item.exercises, 0 )} exercises</b>
