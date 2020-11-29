@@ -1,17 +1,17 @@
 import React from 'react'
+import Person from './Person'
 
 const PersonList = ({persons, filter}) => {
+    let listToShow = []
     if (String(filter).trim().length === 0) {
-        return (
-            persons.map(p => <p key={p.name}>{p.name} {p.number}</p>)
-        )
+        listToShow = persons
     } else {
         let f = ' ' + filter
-        const filteredData = persons.filter(p =>p.name.toUpperCase().includes(f.toUpperCase().trim())) 
-        return(
-            filteredData.map(p => <p key={p.name}>{p.name} {p.number}</p>)
-        )
+        listToShow = persons.filter(p =>p.name.toUpperCase().includes(f.toUpperCase().trim())) 
     }
+    return (
+        listToShow.map(p => <Person key={p.name} p={p} />)
+    )
 }
 
 export default PersonList;
