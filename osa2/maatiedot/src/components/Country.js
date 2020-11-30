@@ -1,8 +1,10 @@
 import React from 'react'
 import Language from './Language'
-import FlagImage from './FlagImage'
+import Image from './Image'
+import Weather from './Weather'
 
 const Country = ({country}) => {
+
     return (
         <div>
         <h2>{country.name}</h2>
@@ -12,7 +14,8 @@ const Country = ({country}) => {
         <ul>
             <Language languages={country.languages} />
         </ul>
-        <FlagImage url={country.flag} />
+        <Image url={country.flag} altText={'Country Flag'} w={'10%'} h={'10%'}/>
+        <Weather capital={country.capital} />
       </div>
 
     )

@@ -4,9 +4,9 @@ import Button from './Button'
 
 const CountryNames = ({countries, hC}) => {
     return (
-        <div>
-            {countries.map(c => <div key={c.name}>{c.name} <Button text={'show'} onClicked={() => hC(typeof c.name === 'undefined' ? "" : String(c.name ))} /></div>)}    
-        </div>
+        <table><tbody>
+            {countries.map(c => <tr key={c.name}><td>{c.name} </td><td><Button text={'show'} onClicked={() => hC(typeof c.name === 'undefined' ? "" : String(c.name ))} /></td></tr>)}    
+        </tbody></table>
     )
 }
 
