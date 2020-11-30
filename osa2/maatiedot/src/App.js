@@ -18,7 +18,7 @@ const App = () => {
   return (
     <div>
        Find countries: <input type="text" value={newFilter} onChange={event => setFilter(event.target.value)} />
-       <ConditionalOutput countries={countryList} filter={newFilter} />
+       <ConditionalOutput countries={countryList} filter={newFilter} handleClick={setFilter} />
     </div>
   );
 }

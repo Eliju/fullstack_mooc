@@ -1,7 +1,7 @@
 import React from 'react';
 
 const FlagImage = ({url})=> {
-    return <img src={url} alt="Country Flag" resizemode={'cover'} width={'10%'} height={'10%'}/>
+    return <img  alt="Country Flag" title="Country Flag" src={url} resizemode={'cover'} width={'10%'} height={'10%'}/>
 }
 
 export default FlagImage;
