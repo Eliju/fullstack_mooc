@@ -17,17 +17,30 @@ const App = () => {
             number: newNumber,
         }
         if (persons.findIndex((p) => p.name === phoneBookObject.name) >= 0){
-            alert(`${newName} is already added to phonebook`)
-            return
-        }
-
-        personService.create(phoneBookObject)
-             .then(newPerson => {
-                 setPersons(persons.concat(newPerson))
-                 setNewName('')
-                 setNewNumber('')
-                 setFilter('')
-             })
+            //alert(`${newName} is already added to phonebook`)
+            if (window.confirm(`${phoneBookObject.name} is already added to phonebook, replace the old number with a new one?`)) {
+                const id = persons[persons.findIndex(p => p.name === phoneBookObject.name)].id
+                personService.update(id, phoneBookObject)
+                    .then(res => {
+                        const newList = persons.map(p => p.id !== id ? p : res)
+                        setPersons(newList)
+                    })
+                    .catch(error => {
+                        alert(`${phoneBookObject} may have been deleted already?`)
+                    })
+            } else {
+                setNewName('')
+                setNewNumber('')
+            }
+        } else {
+            personService.create(phoneBookObject)
+                .then(newPerson => {
+                    setPersons(persons.concat(newPerson))
+                    setNewName('')
+                    setNewNumber('')
+                    setFilter('')
+                })
+            }
    }
   
 
@@ -53,8 +66,11 @@ const App = () => {
                         personService.deletePerson(id)
                             .then(res => { 
                                 setPersons(persons.filter(p => p.id !== id))
-                            }
-                        )
+                            })
+                            .catch(error => {
+                                alert(`Deletion of ${name} failed - maybe already removed?`)
+                                setPersons(persons.filter(p => p.name !== name))
+                            })
                     }  
                 }  
             }
