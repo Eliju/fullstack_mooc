@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios'
 import PersonList from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
@@ -44,6 +43,24 @@ const App = () => {
         setFilter(event.target.value)
     } 
 
+    const handleDeleteClick = (name) => {
+        return (
+            () => {
+                if (window.confirm(`Delete ${name}?`)) {
+                    const idx = persons.findIndex(p => p.name === name)
+                    if (idx >= 0) {
+                        const id = persons[idx].id
+                        personService.deletePerson(id)
+                            .then(res => { 
+                                setPersons(persons.filter(p => p.id !== id))
+                            }
+                        )
+                    }  
+                }  
+            }
+        )
+    }
+
     useEffect(() => {
         personService.getAll()
           .then(personList => {
@@ -58,7 +75,7 @@ const App = () => {
             <h3>Add a new</h3>
             <PersonForm hfs={handleFormSubmit} hnamei={handleNameInput} hnumberi={handleNumberInput} nname={newName} nnumber={newNumber} />
             <h3>Numbers</h3>
-            <PersonList persons={persons} filter={newFilter} />
+            <PersonList persons={persons} filter={newFilter} handleClick={handleDeleteClick} />
         </div>
     )
 }
