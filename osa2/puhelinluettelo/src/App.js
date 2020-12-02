@@ -1,14 +1,16 @@
 import React, {useState, useEffect} from 'react';
-import PersonList from './components/Persons'
+import PersonList from './components/PersonList'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import personService from './services/person'
 
 const App = () => {
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
-    const [newFilter, setFilter] = useState(' ')
+    const [newFilter, setFilter] = useState('')
+    const [notification, setNotification] = useState('')
 
     const handleFormSubmit = (event) => {
         event.preventDefault()
@@ -24,6 +26,11 @@ const App = () => {
                     .then(res => {
                         const newList = persons.map(p => p.id !== id ? p : res)
                         setPersons(newList)
+                        setNotification(`Updated the number of ${phoneBookObject.name}`)
+                        setTimeout(() => setNotification(''), 5000)
+                        setNewName('')
+                        setNewNumber('')
+                        setFilter('')
                     })
                     .catch(error => {
                         alert(`${phoneBookObject} may have been deleted already?`)
@@ -36,6 +43,8 @@ const App = () => {
             personService.create(phoneBookObject)
                 .then(newPerson => {
                     setPersons(persons.concat(newPerson))
+                    setNotification(`Added ${phoneBookObject.name}`)
+                    setTimeout(() => setNotification(''), 5000)
                     setNewName('')
                     setNewNumber('')
                     setFilter('')
@@ -63,9 +72,12 @@ const App = () => {
                     const idx = persons.findIndex(p => p.name === name)
                     if (idx >= 0) {
                         const id = persons[idx].id
+                        const name = persons[idx].name
                         personService.deletePerson(id)
                             .then(res => { 
                                 setPersons(persons.filter(p => p.id !== id))
+                                setNotification(`Deleted the entry of ${name}`)
+                                setTimeout(() => setNotification(''), 5000)
                             })
                             .catch(error => {
                                 alert(`Deletion of ${name} failed - maybe already removed?`)
@@ -87,6 +99,7 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={notification}/>
             <Filter nf={newFilter} flist={filterList} />
             <h3>Add a new</h3>
             <PersonForm hfs={handleFormSubmit} hnamei={handleNameInput} hnumberi={handleNumberInput} nname={newName} nnumber={newNumber} />
