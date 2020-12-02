@@ -4,6 +4,7 @@ import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import Notification from './components/Notification'
 import personService from './services/person'
+import ErrorMessage from './components/ErrorMessage';
 
 const App = () => {
     const [persons, setPersons] = useState([])
@@ -11,6 +12,7 @@ const App = () => {
     const [newNumber, setNewNumber] = useState('')
     const [newFilter, setFilter] = useState('')
     const [notification, setNotification] = useState('')
+    const [errorMessage, setErrorMessage] = useState('')
 
     const handleFormSubmit = (event) => {
         event.preventDefault()
@@ -33,7 +35,8 @@ const App = () => {
                         setFilter('')
                     })
                     .catch(error => {
-                        alert(`${phoneBookObject} may have been deleted already?`)
+                        setErrorMessage(`Error: ${phoneBookObject.name} may have been deleted already?`)
+                        setTimeout(() => setErrorMessage(''), 5000)
                     })
             } else {
                 setNewName('')
@@ -80,7 +83,8 @@ const App = () => {
                                 setTimeout(() => setNotification(''), 5000)
                             })
                             .catch(error => {
-                                alert(`Deletion of ${name} failed - maybe already removed?`)
+                                setErrorMessage(`Deletion of ${name} failed - maybe already removed?`)
+                                setTimeout(() => setErrorMessage(''), 5000)
                                 setPersons(persons.filter(p => p.name !== name))
                             })
                     }  
@@ -100,6 +104,7 @@ const App = () => {
         <div>
             <h2>Phonebook</h2>
             <Notification message={notification}/>
+            <ErrorMessage message={errorMessage}/>
             <Filter nf={newFilter} flist={filterList} />
             <h3>Add a new</h3>
             <PersonForm hfs={handleFormSubmit} hnamei={handleNameInput} hnumberi={handleNumberInput} nname={newName} nnumber={newNumber} />
