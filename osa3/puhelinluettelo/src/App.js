@@ -14,17 +14,20 @@ const App = () => {
     const [notification, setNotification] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
 
+    const parseErrorMessage = (errorMessage) => {
+        const s = '<pre>'
+        const e = '</pre>'
+        let msg = errorMessage.substring(errorMessage.indexOf(s) + 5)
+        msg = msg.substring(0, msg.indexOf(e))
+        return msg
+    }
+
     const handleFormSubmit = (event) => {
         event.preventDefault()
         const phoneBookObject = {
             name: newName,
             number: newNumber,
         }
-        /* if (newName === '' || newNumber === '') {
-            setErrorMessage(`Both name and number are mandatory fields`)
-            setTimeout(() => setErrorMessage(''), 5000)
-            return
-        } */
         if (persons.findIndex((p) => p.name === phoneBookObject.name) >= 0){
             //alert(`${newName} is already added to phonebook`)
             if (window.confirm(`${phoneBookObject.name} is already added to phonebook, replace the old number with a new one?`)) {
@@ -40,7 +43,7 @@ const App = () => {
                         setFilter('')
                     })
                     .catch(error => {
-                        setErrorMessage(`Error: ${phoneBookObject.name} may have been deleted already?`)
+                        setErrorMessage(parseErrorMessage(error.response.data))
                         setTimeout(() => setErrorMessage(''), 5000)
                         setNewName('')
                         setNewNumber('')
@@ -61,7 +64,7 @@ const App = () => {
                     setFilter('')
                 })
                 .catch(error => {
-                    setErrorMessage(`Adding data failed, check that both name and number are given: ${error.message}`)
+                    setErrorMessage(parseErrorMessage(error.response.data))
                     setTimeout(() => setErrorMessage(''), 5000)
                     setNewName('')
                     setNewNumber('')
