@@ -1,3 +1,8 @@
+Tested both locally in http://localhost:3001/
+and in heroku in http://phonebook-server-eliju.herokuapp.com/
+
+____________________________________________________________________________________________________
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
