@@ -20,11 +20,11 @@ const App = () => {
             name: newName,
             number: newNumber,
         }
-        if (newName === '' || newNumber === '') {
+        /* if (newName === '' || newNumber === '') {
             setErrorMessage(`Both name and number are mandatory fields`)
             setTimeout(() => setErrorMessage(''), 5000)
             return
-        }
+        } */
         if (persons.findIndex((p) => p.name === phoneBookObject.name) >= 0){
             //alert(`${newName} is already added to phonebook`)
             if (window.confirm(`${phoneBookObject.name} is already added to phonebook, replace the old number with a new one?`)) {
@@ -60,6 +60,12 @@ const App = () => {
                     setNewNumber('')
                     setFilter('')
                 })
+                .catch(error => {
+                    setErrorMessage(`Adding data failed, check that both name and number are given: ${error.message}`)
+                    setTimeout(() => setErrorMessage(''), 5000)
+                    setNewName('')
+                    setNewNumber('')
+            })
             }
    }
   
