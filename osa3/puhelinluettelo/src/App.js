@@ -43,6 +43,10 @@ const App = () => {
                         setFilter('')
                     })
                     .catch(error => {
+                        console.log(error.response.data);
+                        console.log(error.response.status);
+                        console.log(error.response.headers);
+                    
                         setErrorMessage(parseErrorMessage(error.response.data))
                         setTimeout(() => setErrorMessage(''), 5000)
                         setNewName('')
@@ -64,6 +68,10 @@ const App = () => {
                     setFilter('')
                 })
                 .catch(error => {
+                    console.log(error.response.data);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                
                     setErrorMessage(parseErrorMessage(error.response.data))
                     setTimeout(() => setErrorMessage(''), 5000)
                     setNewName('')
