@@ -20,6 +20,11 @@ const App = () => {
             name: newName,
             number: newNumber,
         }
+        if (newName === '' || newNumber === '') {
+            setErrorMessage(`Both name and number are mandatory fields`)
+            setTimeout(() => setErrorMessage(''), 5000)
+            return
+        }
         if (persons.findIndex((p) => p.name === phoneBookObject.name) >= 0){
             //alert(`${newName} is already added to phonebook`)
             if (window.confirm(`${phoneBookObject.name} is already added to phonebook, replace the old number with a new one?`)) {
@@ -37,6 +42,9 @@ const App = () => {
                     .catch(error => {
                         setErrorMessage(`Error: ${phoneBookObject.name} may have been deleted already?`)
                         setTimeout(() => setErrorMessage(''), 5000)
+                        setNewName('')
+                        setNewNumber('')
+    
                     })
             } else {
                 setNewName('')
