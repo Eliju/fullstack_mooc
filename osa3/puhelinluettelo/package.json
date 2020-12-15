@@ -1,16 +1,17 @@
 {
   "name": "puhelinluettelo",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "engines" : { 
-    "node" : "^14.15.1",
-     "npm" : "^6.14.8"
+  "engines": {
+    "node": "^14.15.1",
+    "npm": "^6.14.8"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.2.2",
     "axios": "^0.21.0",
+    "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
@@ -22,7 +23,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "json-server -p3001 --watch db.json"
+    "server": "json-server -p3001 --watch db.json",
+    "lint": "eslint ."
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
@@ -44,6 +46,8 @@
     ]
   },
   "devDependencies": {
+    "eslint": "^7.15.0",
+    "eslint-plugin-react": "^7.21.5",
     "json-server": "^0.16.3"
   }
 }
