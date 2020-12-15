@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Marikan koruilut",
+  "author": "Marika",
+  "url": "https://www.blogit.fi/marikan-koruilut",
+  "likes": 0
+}
