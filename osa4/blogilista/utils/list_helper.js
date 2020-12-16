@@ -1,3 +1,6 @@
+const { sum } = require('lodash')
+const collection = require('lodash/collection')
+
 const dummy = (blogs) => {
   if (blogs) {
     return 1
@@ -33,8 +36,44 @@ const favoriteBlog = (blogs) => {
   return ret
 }
 
+const mostBlogs = (blogs) => {
+  let ret = {}
+
+  if ((blogs !== null) && (blogs.length > 0)) {
+    const auths = blogs.map(b => { return { 'author': b.author, 'blogs': 1 } })
+    if (auths.length === 1) {
+      ret = { 'author': auths[0].author, 'blogs': auths[0].blogs }
+    } else {
+      const noOfBlogs = collection.reduce(
+        auths,
+        (res,key) => {
+          (res[key.author] || (res[key.author] = [])).push(key.blogs)
+          return res
+        },
+        {})
+      const sumsOfBlogs = collection.reduce(
+        noOfBlogs,
+        (result, value, key) => {
+          const blogs = collection.reduce(value, (s, i) => s + i, 0)
+          result[key] = blogs
+          return result
+        },{})
+      const stdNames = collection.map(
+        sumsOfBlogs,
+        (value,key) => {
+          return ({ 'author': key, 'blogs': value })
+        })
+      const sorted = collection.orderBy(stdNames,['blogs', 'author'], ['desc','asc'])
+      return sorted[0]
+    }
+  }
+
+  return ret
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 }
