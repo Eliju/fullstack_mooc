@@ -36,6 +36,16 @@ const favoriteBlog = (blogs) => {
   return ret
 }
 
+const sums = (coll) => {
+  return collection.reduce(
+    coll,
+    (result, value, key) => {
+      const tmp = collection.reduce(value, (s, i) => s + i, 0)
+      result[key] = tmp
+      return result
+    },{})
+}
+
 const mostBlogs = (blogs) => {
   let ret = {}
 
@@ -51,13 +61,7 @@ const mostBlogs = (blogs) => {
           return res
         },
         {})
-      const sumsOfBlogs = collection.reduce(
-        noOfBlogs,
-        (result, value, key) => {
-          const blogs = collection.reduce(value, (s, i) => s + i, 0)
-          result[key] = blogs
-          return result
-        },{})
+      const sumsOfBlogs = sums(noOfBlogs)
       const stdNames = collection.map(
         sumsOfBlogs,
         (value,key) => {
@@ -71,9 +75,39 @@ const mostBlogs = (blogs) => {
   return ret
 }
 
+const mostLikes = (blogs) => {
+  let ret = {}
+
+  if ((blogs !== null) && (blogs.length > 0)) {
+    const auths = blogs.map(b => { return { 'author': b.author, 'likes': b.likes } })
+    if (auths.length === 1) {
+      ret = { 'author': auths[0].author, 'likes': auths[0].likes }
+    } else {
+      const noOfLikes = collection.reduce(
+        auths,
+        (res,key) => {
+          (res[key.author] || (res[key.author] = [])).push(key.likes)
+          return res
+        },
+        {})
+      const sumsOfLikes = sums(noOfLikes)
+      const stdNames = collection.map(
+        sumsOfLikes,
+        (value,key) => {
+          return ({ 'author': key, 'likes': value })
+        })
+      const sorted = collection.orderBy(stdNames,['likes', 'author'], ['desc','asc'])
+      return sorted[0]
+    }
+  }
+
+  return ret
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
