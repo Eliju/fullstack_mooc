@@ -1,4 +1,3 @@
-const { sum } = require('lodash')
 const collection = require('lodash/collection')
 
 const dummy = (blogs) => {

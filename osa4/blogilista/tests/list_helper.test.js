@@ -133,7 +133,7 @@ describe ('mostBlogs', () => {
   })
 
   test('list with one blog returns that blog object', () => {
-    expect(listHelper.mostBlogs(listWithOneBlog)).toEqual({'author': 'Edsger W. Dijkstra', 'blogs': 1})
+    expect(listHelper.mostBlogs(listWithOneBlog)).toEqual({ 'author': 'Edsger W. Dijkstra', 'blogs': 1 })
   })
 
   test('list with several blogs - writer and number of most blogs', () => {
@@ -183,7 +183,7 @@ describe ('mostLikes', () => {
   })
 
   test('list with one blog returns that blog object', () => {
-    expect(listHelper.mostLikes(listWithOneBlog)).toEqual({'author': 'Edsger W. Dijkstra', 'likes': 5})
+    expect(listHelper.mostLikes(listWithOneBlog)).toEqual({ 'author': 'Edsger W. Dijkstra', 'likes': 5 })
   })
 
   test('list with several blogs - most likes', () => {
