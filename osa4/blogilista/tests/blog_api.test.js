@@ -73,7 +73,7 @@ test('blog is added', async() => {
   expect(blogTitles).toContain(newBlog.title)
 })
 
-test('blog without author is not added', async () => {
+/* test('blog without author is not added', async () => {
   const newBlog = {
     title: 'Motoristinallen matkakertomuksia',
     url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
@@ -92,7 +92,7 @@ test('blog without author is not added', async () => {
   expect(res.body).toHaveLength(initialBlogs.length)
   expect(blogTitles).not.toContain(newBlog.title)
 })
-
+ */
 test('blog without title is not added', async () => {
   const newBlog = {
     author: 'BearFi73',
@@ -104,7 +104,7 @@ test('blog without title is not added', async () => {
     .post('/api/blogs')
     .send(newBlog)
     .expect({ error: 'Blog validation failed: title: Path `title` is required.' })
-    .expect(400)
+    .expect(400) // Status = Bad Request
 
   const res = await api.get('/api/blogs')
   const blogURLs = res.body.map(b => b.url)
@@ -124,7 +124,7 @@ test('blog without url is not added', async () => {
     .post('/api/blogs')
     .send(newBlog)
     .expect({ error: 'Blog validation failed: url: Path `url` is required.' })
-    .expect(400)
+    .expect(400) // Status = Bad Request
 
   const res = await api.get('/api/blogs')
   const blogTitles = res.body.map(b => b.title)
