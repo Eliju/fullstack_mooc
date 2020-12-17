@@ -133,6 +133,28 @@ test('blog without url is not added', async () => {
   expect(blogTitles).not.toContain(newBlog.title)
 })
 
+test('blog without like is added with 0 likes', async () => {
+  const newBlog = {
+    author: 'BearFi73',
+    title: 'Motoristinallen matkakertomuksia',
+    url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia'
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)  //Status === created
+    .expect('Content-Type',/application\/json/)
+
+  const res = await api.get('/api/blogs')
+  const blogs = res.body//.find({ author: newBlog.author, title: newBlog.title, url: newBlog.title  })
+
+  expect(blogs).toHaveLength(initialBlogs.length + 1)
+  const added = blogs.filter(b => ((b.author === newBlog.author) && (b.title === newBlog.title) && (b.url === newBlog.url)))
+  expect(added.length).toBe(1)
+  expect(added[0].likes).toBe(0)
+})
+
 
 afterAll(async () => {
   await mongoose.connection.close()
