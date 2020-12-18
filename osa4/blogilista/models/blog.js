@@ -7,7 +7,7 @@ const blogSchema = mongoose.Schema({
   },
   author: {
     type: String
-    // required: true
+    //required: true
   },
   url: {
     type: String,

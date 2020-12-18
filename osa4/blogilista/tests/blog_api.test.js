@@ -2,157 +2,260 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../App')
 const Blog = require('../models/blog')
-const initialBlogs = [
-  {
-    author: 'Mervi',
-    title: 'Pellavasydän',
-    url: 'https://www.blogit.fi/pellavasydän',
-    likes: 10
-  },
-  {
-    author: 'Marika',
-    title: 'Marikan koruilut',
-    url: 'https://www.blogit.fi/marikan-koruilut',
-    likes: 9
-  }
-]
-
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
-})
+const helper = require('./test_helper')
 
 const api = supertest(app)
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+describe('Database initialized with two blogs', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+
+    const blogs = helper.initialBlogs
+      .map(blog => new Blog(blog))
+    const promises = blogs.map(blog => blog.save())
+    await Promise.all(promises)
+  })
+
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('there are two blogs saved', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(helper.initialBlogs.length)
+  })
+
+  test('blogs contain one with a title Marikan koruilut', async () => {
+    const response = await helper.currentDB()
+
+    const titles = response.map(b => b.title)
+
+    expect(titles).toContain('Marikan koruilut')
+  })
+
+  test('blogs contain id field', async () => {
+    const response = await helper.currentDB()
+    expect(response[0].id).toBeDefined() && expect(response[0]._id).not.toBeDefined()
+  })
 })
 
-test('there are two blogs saved', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(initialBlogs.length)
+
+describe('Getting blog by id', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+
+    const blogs = helper.initialBlogs
+      .map(blog => new Blog(blog))
+    const promises = blogs.map(blog => blog.save())
+    await Promise.all(promises)
+  })
+
+  test('blog can be fetched by id', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeFetched = initDB[0]
+
+    const fetchedBlog = await api
+      .get(`/api/blogs/${blogToBeFetched.id}`)
+      .expect(200)
+      .expect('Content-Type',/application\/json/)
+
+    expect(fetchedBlog.body).toEqual(JSON.parse(JSON.stringify(blogToBeFetched)))
+  })
+
+  test('fetching blog with non-existent id returns error', async () => {
+    const nonExistentID = await helper.nonExistentID()
+
+    await api
+      .get(`/api/blogs/${nonExistentID}`)
+      .expect(404)
+
+  })
+
+  test('fetching blog with non-valid id format returns error', async () => {
+    const nonValidId = '1234asdf'
+
+    await api
+      .get(`/api/blogs/${nonValidId}`)
+      .expect(400)
+  })
+
 })
 
-test('blogs contain one with a title Marikan koruilut', async () => {
-  const response = await api.get('/api/blogs')
+describe('Blog addition', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
 
-  const titles = response.body.map(b => b.title)
+    const blogs = helper.initialBlogs
+      .map(blog => new Blog(blog))
+    const promises = blogs.map(blog => blog.save())
+    await Promise.all(promises)
+  })
 
-  expect(titles).toContain('Marikan koruilut')
+  test('blog is added', async() => {
+    const newBlog = {
+      author: 'BearFi73',
+      title: 'Motoristinallen matkakertomuksia',
+      url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
+      likes: 34
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)  //Status === OK
+      .expect('Content-Type',/application\/json/)
+
+    const res = await helper.currentDB()
+    const blogTitles = res.map(b => b.title)
+
+    expect(res).toHaveLength(helper.initialBlogs.length + 1)
+    expect(blogTitles).toContain(newBlog.title)
+  })
+
+  /* test('blog without author is not added', async () => {
+    const newBlog = {
+      title: 'Motoristinallen matkakertomuksia',
+      url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
+      likes: 34
+    }
+
+    const initDB = await (await helper.currentDB())
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect({ error: 'Blog validation failed: author: Path `author` is required.' })
+      .expect(400)
+
+    const res = await helper.currentDB()
+    const blogTitles = res.map(b => b.title)
+
+    expect(res).toHaveLength(initDB.length)
+    expect(blogTitles).not.toContain(newBlog.title)
+  })
+  */
+  test('blog without title is not added', async () => {
+    const newBlog = {
+      author: 'BearFi73',
+      url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
+      likes: 34
+    }
+
+    const initDB = await helper.currentDB()
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect({ error: 'Blog validation failed: title: Path `title` is required.' })
+      .expect(400) // Status = Bad Request
+
+    const res = await helper.currentDB()
+    const blogURLs = res.map(b => b.url)
+
+    expect(res).toHaveLength(initDB.length)
+    expect(blogURLs).not.toContain(newBlog.url)
+  })
+
+  test('blog without url is not added', async () => {
+    const newBlog = {
+      author: 'BearFi73',
+      title: 'Motoristinallen matkakertomuksia',
+      likes: 34
+    }
+
+    const initDB = await helper.currentDB()
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect({ error: 'Blog validation failed: url: Path `url` is required.' })
+      .expect(400) // Status = Bad Request
+
+    const res = await helper.currentDB()
+    const blogTitles = res.map(b => b.title)
+
+    expect(res).toHaveLength(initDB.length)
+    expect(blogTitles).not.toContain(newBlog.title)
+  })
+
+  test('blog without like is added with 0 likes', async () => {
+    const newBlog = {
+      author: 'BearFi73',
+      title: 'Motoristinallen matkakertomuksia',
+      url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia'
+    }
+
+    const initDB = await helper.currentDB()
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)  //Status === OK
+      .expect('Content-Type',/application\/json/)
+
+    const blogs = await helper.currentDB()
+
+    expect(blogs).toHaveLength(initDB.length + 1)
+    const added = blogs.filter(b => ((b.author === newBlog.author) && (b.title === newBlog.title) && (b.url === newBlog.url)))
+    expect(added.length).toBe(1)
+    expect(added[0].likes).toBe(0)
+  })
 })
 
-test('blogs contain id field', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body[0].id).toBeDefined() && expect(response.body[0]._id).not.toBeDefined()
-})
+describe('Blog deletion', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
 
-test('blog is added', async() => {
-  const newBlog = {
-    author: 'BearFi73',
-    title: 'Motoristinallen matkakertomuksia',
-    url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
-    likes: 34
-  }
+    const blogs = helper.initialBlogs
+      .map(blog => new Blog(blog))
+    const promises = blogs.map(blog => blog.save())
+    await Promise.all(promises)
+  })
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)  //Status === created
-    .expect('Content-Type',/application\/json/)
+  test('blog can be deleted by id', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeDeleted = initDB[0]
 
-  const res = await api.get('/api/blogs')
-  const blogTitles = res.body.map(b => b.title)
+    await api
+      .delete(`/api/blogs/${blogToBeDeleted.id}`)
+      .expect(200)
 
-  expect(res.body).toHaveLength(initialBlogs.length + 1)
-  expect(blogTitles).toContain(newBlog.title)
-})
+    const blogsLeft = await helper.currentDB()
+    const found = blogsLeft.filter(b => (b.id === blogToBeDeleted.id))
+    expect(blogsLeft).toHaveLength(initDB.length - 1)
+    expect(found).toHaveLength(0)
+  })
 
-/* test('blog without author is not added', async () => {
-  const newBlog = {
-    title: 'Motoristinallen matkakertomuksia',
-    url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
-    likes: 34
-  }
+  test('deletion with non-existent id returns error', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeDeleted = helper.nonExistentID()
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect({ error: 'Blog validation failed: author: Path `author` is required.' })
-    .expect(400)
+    await api
+      .delete(`/api/blogs/${blogToBeDeleted.id}`)
+      .expect(400)
 
-  const res = await api.get('/api/blogs')
-  const blogTitles = res.body.map(b => b.title)
+    const blogsLeft = await helper.currentDB()
+    const found = blogsLeft.filter(b => (b.id === blogToBeDeleted.id))
+    expect(blogsLeft).toHaveLength(initDB.length)
+    expect(found).toHaveLength(0)
+  })
 
-  expect(res.body).toHaveLength(initialBlogs.length)
-  expect(blogTitles).not.toContain(newBlog.title)
-})
- */
-test('blog without title is not added', async () => {
-  const newBlog = {
-    author: 'BearFi73',
-    url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
-    likes: 34
-  }
+  test('deletion with non-valid id format returns error', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeDeleted = '1234asdf'
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect({ error: 'Blog validation failed: title: Path `title` is required.' })
-    .expect(400) // Status = Bad Request
+    await api
+      .delete(`/api/blogs/${blogToBeDeleted.id}`)
+      .expect(400)
 
-  const res = await api.get('/api/blogs')
-  const blogURLs = res.body.map(b => b.url)
-
-  expect(res.body).toHaveLength(initialBlogs.length)
-  expect(blogURLs).not.toContain(newBlog.url)
-})
-
-test('blog without url is not added', async () => {
-  const newBlog = {
-    author: 'BearFi73',
-    title: 'Motoristinallen matkakertomuksia',
-    likes: 34
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect({ error: 'Blog validation failed: url: Path `url` is required.' })
-    .expect(400) // Status = Bad Request
-
-  const res = await api.get('/api/blogs')
-  const blogTitles = res.body.map(b => b.title)
-
-  expect(res.body).toHaveLength(initialBlogs.length)
-  expect(blogTitles).not.toContain(newBlog.title)
-})
-
-test('blog without like is added with 0 likes', async () => {
-  const newBlog = {
-    author: 'BearFi73',
-    title: 'Motoristinallen matkakertomuksia',
-    url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia'
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)  //Status === created
-    .expect('Content-Type',/application\/json/)
-
-  const res = await api.get('/api/blogs')
-  const blogs = res.body//.find({ author: newBlog.author, title: newBlog.title, url: newBlog.title  })
-
-  expect(blogs).toHaveLength(initialBlogs.length + 1)
-  const added = blogs.filter(b => ((b.author === newBlog.author) && (b.title === newBlog.title) && (b.url === newBlog.url)))
-  expect(added.length).toBe(1)
-  expect(added[0].likes).toBe(0)
+    const blogsLeft = await helper.currentDB()
+    const found = blogsLeft.filter(b => (b.id === blogToBeDeleted.id))
+    expect(blogsLeft).toHaveLength(initDB.length)
+    expect(found).toHaveLength(0)
+  })
 })
 
 
