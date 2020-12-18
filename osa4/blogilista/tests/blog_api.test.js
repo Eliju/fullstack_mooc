@@ -29,7 +29,7 @@ describe('Database initialized with two blogs', () => {
   })
 
   test('blogs contain one with a title Marikan koruilut', async () => {
-    const response = await helper.currentDB()
+    const response = await helper.currentBlogDB()
 
     const titles = response.map(b => b.title)
 
@@ -37,7 +37,7 @@ describe('Database initialized with two blogs', () => {
   })
 
   test('blogs contain id field', async () => {
-    const response = await helper.currentDB()
+    const response = await helper.currentBlogDB()
     expect(response[0].id).toBeDefined() && expect(response[0]._id).not.toBeDefined()
   })
 })
@@ -54,7 +54,7 @@ describe('Getting blog by id', () => {
   })
 
   test('blog can be fetched by id', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeFetched = initDB[0]
 
     const fetchedBlog = await api
@@ -108,7 +108,7 @@ describe('Blog addition', () => {
       .expect(200)  //Status === OK
       .expect('Content-Type',/application\/json/)
 
-    const res = await helper.currentDB()
+    const res = await helper.currentBlogDB()
     const blogTitles = res.map(b => b.title)
 
     expect(res).toHaveLength(helper.initialBlogs.length + 1)
@@ -122,7 +122,7 @@ describe('Blog addition', () => {
       likes: 34
     }
 
-    const initDB = await (await helper.currentDB())
+    const initDB = await (await helper.currentBlogDB())
 
     await api
       .post('/api/blogs')
@@ -130,7 +130,7 @@ describe('Blog addition', () => {
       .expect({ error: 'Blog validation failed: author: Path `author` is required.' })
       .expect(400)
 
-    const res = await helper.currentDB()
+    const res = await helper.currentBlogDB()
     const blogTitles = res.map(b => b.title)
 
     expect(res).toHaveLength(initDB.length)
@@ -144,7 +144,7 @@ describe('Blog addition', () => {
       likes: 34
     }
 
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
 
     await api
       .post('/api/blogs')
@@ -152,7 +152,7 @@ describe('Blog addition', () => {
       .expect({ error: 'Blog validation failed: title: Path `title` is required.' })
       .expect(400) // Status = Bad Request
 
-    const res = await helper.currentDB()
+    const res = await helper.currentBlogDB()
     const blogURLs = res.map(b => b.url)
 
     expect(res).toHaveLength(initDB.length)
@@ -166,7 +166,7 @@ describe('Blog addition', () => {
       likes: 34
     }
 
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
 
     await api
       .post('/api/blogs')
@@ -174,7 +174,7 @@ describe('Blog addition', () => {
       .expect({ error: 'Blog validation failed: url: Path `url` is required.' })
       .expect(400) // Status = Bad Request
 
-    const res = await helper.currentDB()
+    const res = await helper.currentBlogDB()
     const blogTitles = res.map(b => b.title)
 
     expect(res).toHaveLength(initDB.length)
@@ -188,7 +188,7 @@ describe('Blog addition', () => {
       url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia'
     }
 
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
 
     await api
       .post('/api/blogs')
@@ -196,7 +196,7 @@ describe('Blog addition', () => {
       .expect(200)  //Status === OK
       .expect('Content-Type',/application\/json/)
 
-    const blogs = await helper.currentDB()
+    const blogs = await helper.currentBlogDB()
 
     expect(blogs).toHaveLength(initDB.length + 1)
     const added = blogs.filter(b => ((b.author === newBlog.author) && (b.title === newBlog.title) && (b.url === newBlog.url)))
@@ -216,42 +216,42 @@ describe('Blog deletion', () => {
   })
 
   test('blog can be deleted by id', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeDeleted = initDB[0]
 
     await api
       .delete(`/api/blogs/${blogToBeDeleted.id}`)
       .expect(200)
 
-    const blogsLeft = await helper.currentDB()
+    const blogsLeft = await helper.currentBlogDB()
     const found = blogsLeft.filter(b => (b.id === blogToBeDeleted.id))
     expect(blogsLeft).toHaveLength(initDB.length - 1)
     expect(found).toHaveLength(0)
   })
 
   test('deletion with non-existent id returns error', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeDeleted = helper.nonExistentID()
 
     await api
       .delete(`/api/blogs/${blogToBeDeleted.id}`)
       .expect(400)
 
-    const blogsLeft = await helper.currentDB()
+    const blogsLeft = await helper.currentBlogDB()
     const found = blogsLeft.filter(b => (b.id === blogToBeDeleted.id))
     expect(blogsLeft).toHaveLength(initDB.length)
     expect(found).toHaveLength(0)
   })
 
   test('deletion with non-valid id format returns error', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeDeleted = '1234asdf'
 
     await api
       .delete(`/api/blogs/${blogToBeDeleted.id}`)
       .expect(400)
 
-    const blogsLeft = await helper.currentDB()
+    const blogsLeft = await helper.currentBlogDB()
     const found = blogsLeft.filter(b => (b.id === blogToBeDeleted.id))
     expect(blogsLeft).toHaveLength(initDB.length)
     expect(found).toHaveLength(0)
@@ -269,7 +269,7 @@ describe('Blog update', () => {
   })
 
   test('update by id with all fields updated succeeds', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeUpdated = initDB[0]
 
     const updates = {
@@ -286,13 +286,13 @@ describe('Blog update', () => {
 
     const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
 
-    const newDB = await helper.currentDB()
+    const newDB = await helper.currentBlogDB()
     expect(newDB.length).toBe(initDB.length)
     expect(newValues.body).toEqual(updated.body)
   })
 
   test('update by id without author field succeeds', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeUpdated = initDB[0]
 
     const updates = {
@@ -308,13 +308,13 @@ describe('Blog update', () => {
 
     const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
 
-    const newDB = await helper.currentDB()
+    const newDB = await helper.currentBlogDB()
     expect(newDB.length).toBe(initDB.length)
     expect(newValues.body).toEqual(updated.body)
   })
 
   test('update by id without title field gives an error', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeUpdated = initDB[0]
 
     const updates = {
@@ -330,13 +330,13 @@ describe('Blog update', () => {
 
     const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
 
-    const newDB = await helper.currentDB()
+    const newDB = await helper.currentBlogDB()
     expect(newDB.length).toBe(initDB.length)
     expect(updated.body).toEqual(blogToBeUpdated)
   })
 
   test('update by id without url field gives an error', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeUpdated = initDB[0]
 
     const updates = {
@@ -352,13 +352,13 @@ describe('Blog update', () => {
 
     const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
 
-    const newDB = await helper.currentDB()
+    const newDB = await helper.currentBlogDB()
     expect(newDB.length).toBe(initDB.length)
     expect(updated.body).toEqual(blogToBeUpdated)
   })
 
   test('update by id without likes field succeeds', async () => {
-    const initDB = await helper.currentDB()
+    const initDB = await helper.currentBlogDB()
     const blogToBeUpdated = initDB[0]
 
     const updates = {
@@ -374,7 +374,7 @@ describe('Blog update', () => {
 
     const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
 
-    const newDB = await helper.currentDB()
+    const newDB = await helper.currentBlogDB()
     expect(newDB.length).toBe(initDB.length)
     expect(newValues.body).toEqual(updated.body)
   })
