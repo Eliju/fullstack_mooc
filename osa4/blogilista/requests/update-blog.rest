@@ -1,0 +1,9 @@
+PUT http://localhost:3003/api/blogs/5fdc9a6391c7fb11e0083050
+Content-Type: application/json
+
+{
+  "author": "",
+  "title": "dfgsfdg",
+  "url": "ada",
+  "likes": 0
+}

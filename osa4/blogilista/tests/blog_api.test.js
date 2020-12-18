@@ -258,6 +258,128 @@ describe('Blog deletion', () => {
   })
 })
 
+describe('Blog update', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+
+    const blogs = helper.initialBlogs
+      .map(blog => new Blog(blog))
+    const promises = blogs.map(blog => blog.save())
+    await Promise.all(promises)
+  })
+
+  test('update by id with all fields updated succeeds', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeUpdated = initDB[0]
+
+    const updates = {
+      author: 'updated author',
+      title: 'updated title',
+      url: 'updated url',
+      likes: blogToBeUpdated.likes + 10
+    }
+
+    const newValues = await api
+      .put(`/api/blogs/${blogToBeUpdated.id}`)
+      .send(updates)
+      .expect(200)
+
+    const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
+
+    const newDB = await helper.currentDB()
+    expect(newDB.length).toBe(initDB.length)
+    expect(newValues.body).toEqual(updated.body)
+  })
+
+  test('update by id without author field succeeds', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeUpdated = initDB[0]
+
+    const updates = {
+      title: 'updated title',
+      url: 'updated url',
+      likes: blogToBeUpdated.likes + 10
+    }
+
+    const newValues = await api
+      .put(`/api/blogs/${blogToBeUpdated.id}`)
+      .send(updates)
+      .expect(200)
+
+    const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
+
+    const newDB = await helper.currentDB()
+    expect(newDB.length).toBe(initDB.length)
+    expect(newValues.body).toEqual(updated.body)
+  })
+
+  test('update by id without title field gives an error', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeUpdated = initDB[0]
+
+    const updates = {
+      author: 'updated author',
+      url: 'updated url',
+      likes: blogToBeUpdated.likes + 10
+    }
+
+    await api
+      .put(`/api/blogs/${blogToBeUpdated.id}`)
+      .send(updates)
+      .expect(400)
+
+    const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
+
+    const newDB = await helper.currentDB()
+    expect(newDB.length).toBe(initDB.length)
+    expect(updated.body).toEqual(blogToBeUpdated)
+  })
+
+  test('update by id without url field gives an error', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeUpdated = initDB[0]
+
+    const updates = {
+      author: 'updated author',
+      title: 'updated title',
+      likes: blogToBeUpdated.likes + 10
+    }
+
+    await api
+      .put(`/api/blogs/${blogToBeUpdated.id}`)
+      .send(updates)
+      .expect(400)
+
+    const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
+
+    const newDB = await helper.currentDB()
+    expect(newDB.length).toBe(initDB.length)
+    expect(updated.body).toEqual(blogToBeUpdated)
+  })
+
+  test('update by id without likes field succeeds', async () => {
+    const initDB = await helper.currentDB()
+    const blogToBeUpdated = initDB[0]
+
+    const updates = {
+      author: 'updated author',
+      title: 'updated title',
+      url: 'updated url'
+    }
+
+    const newValues = await api
+      .put(`/api/blogs/${blogToBeUpdated.id}`)
+      .send(updates)
+      .expect(200)
+
+    const updated = await api.get(`/api/blogs/${blogToBeUpdated.id}`)
+
+    const newDB = await helper.currentDB()
+    expect(newDB.length).toBe(initDB.length)
+    expect(newValues.body).toEqual(updated.body)
+  })
+
+})
 
 afterAll(async () => {
   await mongoose.connection.close()
