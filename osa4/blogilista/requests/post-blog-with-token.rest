@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVsaWp1ZSIsImlkIjoiNWZkZGY4MTUxNmYxNmQxMTAwZmFiNTg1IiwiaWF0IjoxNjA4NDA2ODg5fQ.agcfNjF_WgSa9HyC7cOFBWrSLjhKCsSwMhiZ_lKzbow
+
+{
+  "title": "Pellavasydän",
+  "author": "Mervi",
+  "url": "https://www.blogit.fi/pellavasydän",
+  "likes": 0
+}

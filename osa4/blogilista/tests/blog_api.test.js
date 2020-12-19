@@ -2,7 +2,9 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../App')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
+const jwt = require('jsonwebtoken')
 
 const api = supertest(app)
 
@@ -94,16 +96,26 @@ describe('Blog addition', () => {
     await Promise.all(promises)
   })
 
-  test('blog is added', async() => {
+
+  test('blog is added when auth token is given', async() => {
     const newBlog = {
       author: 'BearFi73',
       title: 'Motoristinallen matkakertomuksia',
       url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
       likes: 34
     }
+    // user id changes every run time => token needs to be calculated here
+    const username = 'alainene'
+    const user = await User.findOne({ username: username })
+    const userForToken = {
+      username: username,
+      id: user.id
+    }
+    const token = jwt.sign(userForToken, process.env.SECRET_VALUE)
 
     await api
       .post('/api/blogs')
+      .set('authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(200)  //Status === OK
       .expect('Content-Type',/application\/json/)
@@ -113,6 +125,49 @@ describe('Blog addition', () => {
 
     expect(res).toHaveLength(helper.initialBlogs.length + 1)
     expect(blogTitles).toContain(newBlog.title)
+  })
+
+  test('blog addition with invalid auth token fails', async() => {
+    const newBlog = {
+      author: 'BearFi73',
+      title: 'Motoristinallen matkakertomuksia, osa 2',
+      url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
+      likes: 34
+    }
+
+    await api
+      .post('/api/blogs')
+      .set('authorization', `bearer JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWxhaW5lbmUiLCJpZCI6IjVmZGU1OTIxMTllMjNjNGI3ODRjZTZlYyIsImlhdCI6MTYwODQwOTA5M30.cEwXCSul3zODWyXtuc1UE46VTUhh7tIGAAc8WuIe-Xs`)
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type',/application\/json/)
+
+    const res = await helper.currentBlogDB()
+    const blogTitles = res.map(b => b.title)
+
+    expect(res).toHaveLength(helper.initialBlogs.length)
+    expect(blogTitles).not.toContain(newBlog.title)
+  })
+
+  test('blog addition without auth token fails', async() => {
+    const newBlog = {
+      author: 'BearFi73',
+      title: 'Motoristinallen matkakertomuksia, osa 2',
+      url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
+      likes: 34
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+      .expect('Content-Type',/application\/json/)
+
+    const res = await helper.currentBlogDB()
+    const blogTitles = res.map(b => b.title)
+
+    expect(res).toHaveLength(helper.initialBlogs.length)
+    expect(blogTitles).not.toContain(newBlog.title)
   })
 
   /* test('blog without author is not added', async () => {
@@ -137,17 +192,26 @@ describe('Blog addition', () => {
     expect(blogTitles).not.toContain(newBlog.title)
   })
   */
-  test('blog without title is not added', async () => {
+  test('blog without title is not added (auth token given)', async () => {
     const newBlog = {
       author: 'BearFi73',
       url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia',
       likes: 34
     }
+    // user id changes every run time => token needs to be calculated here
+    const username = 'alainene'
+    const user = await User.findOne({ username: username })
+    const userForToken = {
+      username: username,
+      id: user.id
+    }
+    const token = jwt.sign(userForToken, process.env.SECRET_VALUE)
 
     const initDB = await helper.currentBlogDB()
 
     await api
       .post('/api/blogs')
+      .set('authorization', `bearer ${token}`)
       .send(newBlog)
       .expect({ error: 'Blog validation failed: title: Path `title` is required.' })
       .expect(400) // Status = Bad Request
@@ -159,17 +223,26 @@ describe('Blog addition', () => {
     expect(blogURLs).not.toContain(newBlog.url)
   })
 
-  test('blog without url is not added', async () => {
+  test('blog without url is not added (auth token given)', async () => {
     const newBlog = {
       author: 'BearFi73',
       title: 'Motoristinallen matkakertomuksia',
       likes: 34
     }
+    // user id changes every run time => token needs to be calculated here
+    const username = 'alainene'
+    const user = await User.findOne({ username: username })
+    const userForToken = {
+      username: username,
+      id: user.id
+    }
+    const token = jwt.sign(userForToken, process.env.SECRET_VALUE)
 
     const initDB = await helper.currentBlogDB()
 
     await api
       .post('/api/blogs')
+      .set('authorization', `bearer ${token}`)
       .send(newBlog)
       .expect({ error: 'Blog validation failed: url: Path `url` is required.' })
       .expect(400) // Status = Bad Request
@@ -181,17 +254,26 @@ describe('Blog addition', () => {
     expect(blogTitles).not.toContain(newBlog.title)
   })
 
-  test('blog without like is added with 0 likes', async () => {
+  test('blog without like is added with 0 likes (auth token given)', async () => {
     const newBlog = {
       author: 'BearFi73',
       title: 'Motoristinallen matkakertomuksia',
       url: 'https://ranneliike.net/blogit/motoristinallen-matkakertomuksia'
     }
+    // user id changes every run time => token needs to be calculated here
+    const username = 'alainene'
+    const user = await User.findOne({ username: username })
+    const userForToken = {
+      username: username,
+      id: user.id
+    }
+    const token = jwt.sign(userForToken, process.env.SECRET_VALUE)
 
     const initDB = await helper.currentBlogDB()
 
     await api
       .post('/api/blogs')
+      .set('authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(200)  //Status === OK
       .expect('Content-Type',/application\/json/)
