@@ -50,6 +50,26 @@ describe('GET & POST users', () => {
     expect(userNames).toContain(user.username)
   })
 
+  test('saving the same username again fails', async () => {
+
+    const user = {
+      username: 'alainene',
+      name: 'Eeva Alainen',
+      passwordHash: 'JokseenkinSalainen'
+    }
+
+    await api
+      .post('/api/users')
+      .send(user)
+      .expect(400)
+
+    const currentDB = await helper.currentUserDB()
+    const userNames = currentDB.map(user => user.username)
+
+    expect(currentDB).toHaveLength(helper.initialUsers.length)
+    expect(userNames).toContain(user.username)
+  })
+
   test('saving user without username fails', async () => {
 
     const user = {
@@ -69,11 +89,31 @@ describe('GET & POST users', () => {
     expect(names).not.toContain(user.name)
   })
 
-  test('saving user without name fails', async () => {
+  test('saving user without name succeeds', async () => {
 
     const user = {
       'username': 'okkoneno',
       'passwordHash': 'MelkeinSalainen'
+    }
+
+    await api
+      .post('/api/users')
+      .send(user)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const currentDB = await helper.currentUserDB()
+    const names = currentDB.map(user => user.name)
+
+    expect(currentDB).toHaveLength(helper.initialUsers.length + 1)
+    expect(names).toContain(user.name)
+  })
+
+  test('saving user without password fails', async () => {
+
+    const user = {
+      'username': 'okkoneno',
+      'name': 'Onni Okkonen'
     }
 
     await api
@@ -88,17 +128,18 @@ describe('GET & POST users', () => {
     expect(userNames).not.toContain(user.username)
   })
 
-  test('saving user without password fails', async () => {
+  test('saving user with too short password fails', async () => {
 
     const user = {
       'username': 'okkoneno',
-      'name': 'Onni Okkonen'
+      'name': 'Onni Okkonen',
+      'passwordHash': 'pw'
     }
 
     await api
       .post('/api/users')
       .send(user)
-      .expect(500)
+      .expect(400)
 
     const currentDB = await helper.currentUserDB()
     const userNames = currentDB.map(user => user.username)
