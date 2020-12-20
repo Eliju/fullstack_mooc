@@ -3,14 +3,6 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-const getTokenFrom = req => {
-  const authorization = req.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    return authorization.substring(7)    // returns token
-  }
-  return null
-}
-
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('users', { 'name': 1, 'username': 1 })
   response.json(blogs.map(blog => blog.toJSON()))
@@ -27,9 +19,8 @@ blogsRouter.get('/:id', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
-  const token = getTokenFrom(request)
-  const decToken = jwt.verify(token, process.env.SECRET_VALUE)
-  if (!token || !decToken.id) {
+  const decToken = jwt.verify(request.token, process.env.SECRET_VALUE)
+  if (!decToken.id) {
     return response.status(401).json({ error: 'authorization token missing or invalid' })
   }
   const user = await User.findById(decToken.id)

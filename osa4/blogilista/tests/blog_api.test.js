@@ -137,7 +137,7 @@ describe('Blog addition', () => {
 
     await api
       .post('/api/blogs')
-      .set('authorization', `bearer JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWxhaW5lbmUiLCJpZCI6IjVmZGU1OTIxMTllMjNjNGI3ODRjZTZlYyIsImlhdCI6MTYwODQwOTA5M30.cEwXCSul3zODWyXtuc1UE46VTUhh7tIGAAc8WuIe-Xs`)
+      .set('authorization', 'bearer JhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWxhaW5lbmUiLCJpZCI6IjVmZGU1OTIxMTllMjNjNGI3ODRjZTZlYyIsImlhdCI6MTYwODQwOTA5M30.cEwXCSul3zODWyXtuc1UE46VTUhh7tIGAAc8WuIe-Xs')
       .send(newBlog)
       .expect(401)
       .expect('Content-Type',/application\/json/)
